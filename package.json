@@ -1,0 +1,43 @@
+{
+    "name": "nelva-api",
+    "version": "1.0.0",
+    "description": "Nelva API - https://nelva.fr",
+    "author": "Samet Alaca <contact@samet-alaca.fr>",
+    "main": "src/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "babel src --out-dir build",
+        "lint": "eslint src --fix",
+        "dev": "npm run lint && npm run build && node build/index.js",
+        "start": "nodemon --ignore build/ --exec npm run dev"
+    },
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "compression": "^1.7.3",
+        "cors": "^2.8.4",
+        "discord.js": "^11.4.2",
+        "express": "^4.16.3",
+        "jsonwebtoken": "^8.3.0",
+        "nedb": "^1.8.0",
+        "rtmp-server": "^0.2.0",
+        "socket.io": "^2.1.1"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "eslint": "^5.6.1",
+        "nodemon": "^1.18.4"
+    },
+    "babel": {
+        "presets": [
+            "env"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/samet-alaca/nelva-api"
+    },
+    "bugs": {
+        "url": "https://github.com/samet-alaca/nelva-api/issues"
+    }
+}

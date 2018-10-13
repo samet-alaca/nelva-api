@@ -1,0 +1,8 @@
+build/*
+!.gitkeep
+database/*
+!.gitkeep
+stream/*
+!.gitkeep
+node_modules/*
+config.json
