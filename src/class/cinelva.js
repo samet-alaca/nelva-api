@@ -50,10 +50,9 @@ export default class Cinelva extends EventEmitter {
             client.on('publish', data => {
                 this.start();
             });
-        });
-
-        this.server.on('stop', () => {
-            this.stop();
+            client.on('stop', () => {
+                this.stop();
+            });
         });
 
         this.socket.on('connection', client => {
@@ -90,6 +89,10 @@ export default class Cinelva extends EventEmitter {
         console.log('stopping');
         this.stream.kill();
         this.stream = null;
+        this.clear();
+    }
+
+    clear() {
         fs.readdir(this.directory, (error, files) => {
             if(error) {
                 throw error;
