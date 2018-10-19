@@ -9,7 +9,7 @@
         "build": "babel src --out-dir build",
         "lint": "eslint src --fix",
         "dev": "npm run lint && npm run build && node build/index.js",
-        "start": "nodemon --ignore build/ --exec npm run dev"
+        "start": "nodemon --ignore build/ --ignore database/ --ignore stream/ --exec npm run dev"
     },
     "dependencies": {
         "body-parser": "^1.18.3",
@@ -19,6 +19,7 @@
         "express": "^4.16.3",
         "jsonwebtoken": "^8.3.0",
         "nedb": "^1.8.0",
+        "plotly": "^1.0.6",
         "rtmp-server": "^0.2.0",
         "socket.io": "^2.1.1"
     },

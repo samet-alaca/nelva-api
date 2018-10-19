@@ -3,7 +3,6 @@ import { spawn } from 'child_process';
 import path from 'path';
 import Socket from 'socket.io';
 import RTMP from 'rtmp-server';
-import Segmenter from './segmenter';
 
 export default class Cinelva extends EventEmitter {
     constructor(options = null) {
@@ -14,6 +13,7 @@ export default class Cinelva extends EventEmitter {
                 '-loglevel', 'quiet',
                 '-y',
                 '-r', '24',
+                '-threads', '0',
                 '-i', 'rtmp://localhost:1935/live/stream',
                 '-c:a', 'aac',
                 '-ar', '48000',
@@ -23,6 +23,7 @@ export default class Cinelva extends EventEmitter {
                 '-g', '24',
                 '-keyint_min', '24',
                 '-hls_time', '2',
+                '-hls_flags', 'delete_segments',
                 '-hls_playlist_type', 'vod',
                 '-b:v', '5000k',
                 '-maxrate', '5350k',
@@ -32,42 +33,57 @@ export default class Cinelva extends EventEmitter {
             ]
         };
         this.options = options || this.default;
+        this.viewers = 0;
         this.stream = null;
         this.server = new RTMP();
-        this.segmenter = new Segmenter();
         this.socket = new Socket();
 
         this.server.on('error', error => {
+            this.stop();
             throw error;
         });
 
         this.server.on('client', client => {
             client.on('publish', data => {
-                this.emit('publish', data.stream);
+                this.start();
             });
         });
 
         this.server.on('stop', () => {
-            this.emit('stop');
+            this.stop();
         });
-
-        this.socket.listen(this.options.port);
-        this.server.listen(1935);
 
         this.socket.on('connection', client => {
             client.on('disconnect', () => {
                 this.viewers--;
                 this.socket.emit('viewers', this.viewers);
             });
+            client.on('viewers', () => {
+                client.emit('viewers', this.viewers);
+            });
+            client.on('status', () => {
+                client.emit('status', Boolean(this.stream));
+            });
             this.viewers++;
             this.socket.emit('viewers', this.viewers);
         });
+
+        this.socket.listen(this.options.port);
+        this.server.listen(1935);
     }
 
     start() {
+        if(this.stream) {
+            this.stop();
+        }
         this.stream = spawn('ffmpeg', this.options.stream.join(' '));
         this.stream.stderr.on('data', data => {
             console.log(data);
         });
+    }
+
+    stop() {
+        this.stream.kill();
+        this.stream = null;
     }
 }
