@@ -77,7 +77,7 @@ export default class Cinelva extends EventEmitter {
         if(this.stream) {
             this.stop();
         }
-        this.stream = exec('ffmpeg', this.options.stream.join(' '), error => {
+        this.stream = exec('ffmpeg ' + this.options.stream.join(' '), error => {
             if(error) {
                 console.log(error);
             }
