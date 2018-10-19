@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { exec } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import Socket from 'socket.io';
 import RTMP from 'rtmp-server';
@@ -7,6 +8,7 @@ import RTMP from 'rtmp-server';
 export default class Cinelva extends EventEmitter {
     constructor(options = null) {
         super();
+        this.directory = path.join(__dirname, '/../../stream/');
         this.default = {
             port: 8001,
             stream: [
@@ -30,7 +32,7 @@ export default class Cinelva extends EventEmitter {
                 '-maxrate', '5350k',
                 '-bufsize', '1500k',
                 '-b:a', '192k',
-                '-hls_segment_filename', path.join(__dirname, '../../stream/source_%03d.ts') + ' ' + path.join(__dirname, '../../stream/source.m3u8')
+                '-hls_segment_filename', this.directory + 'source_%03d.ts ' + this.directory + 'source.m3u8'
             ]
         };
         this.options = options || this.default;
@@ -85,7 +87,23 @@ export default class Cinelva extends EventEmitter {
     }
 
     stop() {
+        console.log('stopping');
         this.stream.kill();
         this.stream = null;
+        fs.readdir(this.directory, (error, files) => {
+            if(error) {
+                throw error;
+            }
+
+            console.log('found ' + files.length + ' files');
+            for(const file of files) {
+                fs.unlink(path.join(this.directory, file), error => {
+                    if(error) {
+                        throw error;
+                    }
+                    console.log('deleted ' + file);
+                });
+            }
+        });
     }
 }
