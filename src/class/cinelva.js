@@ -10,6 +10,7 @@ export default class Cinelva extends EventEmitter {
         this.default = {
             port: 8001,
             stream: [
+                '-hide_banner',
                 '-loglevel', 'quiet',
                 '-y',
                 '-r', '24',
