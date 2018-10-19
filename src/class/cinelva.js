@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { spawn } from 'child_process';
+import { exec } from 'child_process';
 import path from 'path';
 import Socket from 'socket.io';
 import RTMP from 'rtmp-server';
@@ -76,13 +76,8 @@ export default class Cinelva extends EventEmitter {
         if(this.stream) {
             this.stop();
         }
-        console.log(this.options.stream.join(' '));
-        this.stream = spawn('ffmpeg', this.options.stream);
-        this.stream.stdout.on('data', data => {
-            console.log(data);
-        });
-        this.stream.stderr.on('data', data => {
-            console.log(data);
+        this.stream = exec('ffmpeg', this.options.stream.join(' '), error => {
+            if(error) throw error;
         });
     }
 
