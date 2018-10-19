@@ -76,37 +76,32 @@ export default class Cinelva extends EventEmitter {
 
     start() {
         if(this.stream) {
-            this.stop();
+            return false;
         }
-        this.stream = exec('ffmpeg ' + this.options.stream.join(' '), error => {
-            if(error) {
-                console.log(error);
-            }
+
+        this.clear().then(() => {
+            this.stream = exec('ffmpeg ' + this.options.stream.join(' '));
         });
     }
 
     stop() {
-        console.log('stopping');
         this.stream.kill();
         this.stream = null;
-        this.clear();
     }
 
     clear() {
-        fs.readdir(this.directory, (error, files) => {
-            if(error) {
-                throw error;
-            }
+        return new Promise((resolve, reject) => {
+            fs.readdir(this.directory, (error, files) => {
+                if(error) {
+                    reject(error);
+                }
 
-            console.log('found ' + files.length + ' files');
-            for(const file of files) {
-                fs.unlink(path.join(this.directory, file), error => {
-                    if(error) {
-                        throw error;
-                    }
-                    console.log('deleted ' + file);
-                });
-            }
+                console.log('found ' + files.length + ' files');
+                for(const file of files) {
+                    fs.unlinkSync(path.join(this.directory, file));
+                }
+                resolve();
+            });
         });
     }
 }
